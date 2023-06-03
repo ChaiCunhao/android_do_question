@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="QuestionNumberCorrect">
+        <item name="android:background">@drawable/bg_question_number_correct</item>
+    </style>
+
+    <style name="QuestionNumberWrong">
+        <item name="android:background">@drawable/bg_question_number_wrong</item>
+    </style>
+
+    <style name="QuestionNumberDefault">
+        <item name="android:background">@drawable/bg_question_number_default</item>
+    </style>
+
+</resources>

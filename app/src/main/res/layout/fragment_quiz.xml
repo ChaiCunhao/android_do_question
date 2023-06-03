@@ -7,7 +7,7 @@
     android:layout_margin="2dp"
     android:layout_marginTop="20dp"
     android:orientation="vertical"
-    tools:context=".QuizFragment">
+    tools:context=".fragment.QuizFragment">
 
     <TextView
         android:id="@+id/questionTextView"

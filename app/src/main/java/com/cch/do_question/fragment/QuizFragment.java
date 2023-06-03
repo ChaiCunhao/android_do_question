@@ -1,7 +1,9 @@
-package com.cch.do_question;
+package com.cch.do_question.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -13,21 +15,18 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cch.do_question.QuizActivity;
+import com.cch.do_question.R;
+import com.cch.do_question.bean.Question;
+import com.cch.do_question.util.GetSQLite;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class QuizFragment extends Fragment {
 
     // 定义题目数组
-    private String[] questions = {
-            "问题1",
-            "问题2",
-            "问题3"
-    };
-
-    // 定义答案数组
-    private String[][] answers = {
-            {"a", "b", "c"},
-            {"x", "y"},
-            {"111", "2222", "3333333", "44"}
-    };
+    private List<Question> questions = new ArrayList<Question>();
 
     private TextView questionTextView;
     private RadioGroup optionsRadioGroup;
@@ -36,11 +35,26 @@ public class QuizFragment extends Fragment {
     private int currentQuestionIndex = 0;//当前题目下标
     private int correctAnswers = 0;//正确回答数目
     private int wrongAnswers = 0;//错误回答数目
+    private  DoQuestionListener listener;
 
-    private int[] right = {2, 1, 4};//答案
+    //创建一个接口
+    public interface DoQuestionListener{
+        void doquestion(int question_index, boolean isright);
+    }
 
     public QuizFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context){
+        super.onAttach(context);
+        currentQuestionIndex = ((QuizActivity) context).getCurrentQuestionIndex();
+        try {
+            listener= (DoQuestionListener) context;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -51,6 +65,9 @@ public class QuizFragment extends Fragment {
         questionTextView = view.findViewById(R.id.questionTextView);
         optionsRadioGroup = view.findViewById(R.id.optionsRadioGroup);
         submitButton = view.findViewById(R.id.submitButton);
+
+        GetSQLite getSQLite = new GetSQLite();
+        questions= getSQLite.setQuestionList();
 
         displayQuestion();
 
@@ -66,13 +83,13 @@ public class QuizFragment extends Fragment {
 
     private void displayQuestion() {
         // 显示当前题目
-        questionTextView.setText(questions[currentQuestionIndex]);
+        questionTextView.setText(questions.get(currentQuestionIndex).getQuestion_content());
         // 清空选项
         optionsRadioGroup.removeAllViews();
 
-        for (int i = 0; i < answers[currentQuestionIndex].length; i++) {
+        for (int i = 0; i < questions.get(currentQuestionIndex).getAnswers().size(); i++) {
             RadioButton radioButton = new RadioButton(requireContext());
-            radioButton.setText(answers[currentQuestionIndex][i]);
+            radioButton.setText(questions.get(currentQuestionIndex).getAnswers().get(i));
             radioButton.setId(i);
             optionsRadioGroup.addView(radioButton);
         }
@@ -88,28 +105,19 @@ public class QuizFragment extends Fragment {
             // RadioButton selectedRadioButton = requireView().findViewById(selectedRadioButtonId);
             // String selectedAnswer = selectedRadioButton.getText().toString();
             // System.out.println(selectedAnswer);
-            if (selectedRadioButtonId == right[currentQuestionIndex] - 1) {
+            if (selectedRadioButtonId == questions.get(currentQuestionIndex).getRight() - 1) {
                 Toast.makeText(requireContext(), "回答正确！", Toast.LENGTH_SHORT).show();
-                correctAnswers++;
+                listener.doquestion(currentQuestionIndex,true);
             } else {
                 Toast.makeText(requireContext(), "回答错误！", Toast.LENGTH_SHORT).show();
-                wrongAnswers++;
-            }
-
-            // 切换到下一题
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                displayQuestion();
-            } else {
-                Toast.makeText(requireContext(), "已经回答完所有题目", Toast.LENGTH_SHORT).show();
-                // 做完题目后可以执行相应的操作，如显示得分等
-            }
-
-            // 更新底部横栏信息
-            if (getActivity() instanceof QuizActivity) {
-                ((QuizActivity) getActivity()).updateQuizInfo(correctAnswers, wrongAnswers, questions.length, currentQuestionIndex);
+                listener.doquestion(currentQuestionIndex,false);
             }
         }
+    }
+
+    public void updateQuestion(int cIndex){
+        currentQuestionIndex = cIndex;
+        displayQuestion();
     }
 
 }
