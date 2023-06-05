@@ -1,5 +1,8 @@
 package com.cch.do_question.adapter;
 
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cch.do_question.QuizActivity;
@@ -50,15 +54,25 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         // 设置题号的背景颜色
         if (questionItem.isAnswered()) {
             if (questionItem.isCorrect()) {
-//                holder.questionNumberTextView.setBackgroundResource(R.drawable.bg_question_number_correct);
-                holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_correct);
+                if(position==currentQuestionIndex){
+                    holder.linearLayout.setBackgroundResource(R.drawable.cu_bg_question_number_correct);
+                }else{
+                    holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_correct);
+                }
             } else {
-//                holder.questionNumberTextView.setBackgroundResource(R.drawable.bg_question_number_wrong);
-                holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_wrong);
+                if(position==currentQuestionIndex){
+                    holder.linearLayout.setBackgroundResource(R.drawable.cu_bg_question_number_wrong);
+                }else{
+                    holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_wrong);
+                }
             }
         } else {
-//            holder.questionNumberTextView.setBackgroundResource(R.drawable.bg_question_number_default);
-            holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_default);
+            if(position==currentQuestionIndex){
+                holder.linearLayout.setBackgroundResource(R.drawable.cu_bg_question_number_default);
+            }else{
+                holder.linearLayout.setBackgroundResource(R.drawable.bg_question_number_default);
+            }
+
         }
 
         // 处理题号的点击事件

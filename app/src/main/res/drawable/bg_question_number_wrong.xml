@@ -10,7 +10,7 @@
 <!--    <size-->
 <!--        android:width="50dp"-->
 <!--        android:height="50dp"/>-->
-    <stroke
-        android:width="2dp"
-        android:color="#ff5635" /><!-- 边框2dp，颜色白色 -->
+<!--    <stroke-->
+<!--        android:width="2dp"-->
+<!--        android:color="#ff5635" />&lt;!&ndash; 边框2dp，颜色白色 &ndash;&gt;-->
 </shape>

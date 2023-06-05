@@ -1,6 +1,7 @@
 package com.cch.do_question.fragment;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.cch.do_question.QuizActivity;
 import com.cch.do_question.R;
 import com.cch.do_question.bean.Question;
+import com.cch.do_question.bean.QuestionItem;
 import com.cch.do_question.util.GetSQLite;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class QuizFragment extends Fragment {
 
     // 定义题目数组
     private List<Question> questions = new ArrayList<Question>();
+    private QuestionItem questionItem;
 
     private TextView questionTextView;
     private RadioGroup optionsRadioGroup;
@@ -39,7 +42,7 @@ public class QuizFragment extends Fragment {
 
     //创建一个接口
     public interface DoQuestionListener{
-        void doquestion(int question_index, boolean isright);
+        void doquestion(QuestionItem questionItem);
     }
 
     public QuizFragment() {
@@ -50,8 +53,9 @@ public class QuizFragment extends Fragment {
     public void onAttach(@NonNull Context context){
         super.onAttach(context);
         currentQuestionIndex = ((QuizActivity) context).getCurrentQuestionIndex();
+        questionItem = ((QuizActivity) context).getCurrentQuestionItem();
         try {
-            listener= (DoQuestionListener) context;
+            listener = (DoQuestionListener) context;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,39 +89,60 @@ public class QuizFragment extends Fragment {
         // 显示当前题目
         questionTextView.setText(questions.get(currentQuestionIndex).getQuestion_content());
         // 清空选项
+        optionsRadioGroup.clearCheck();
         optionsRadioGroup.removeAllViews();
-
+        // 添加选项
         for (int i = 0; i < questions.get(currentQuestionIndex).getAnswers().size(); i++) {
             RadioButton radioButton = new RadioButton(requireContext());
             radioButton.setText(questions.get(currentQuestionIndex).getAnswers().get(i));
             radioButton.setId(i);
+            if (questionItem.isAnswered()){// 若已经答过该题
+                radioButton.setClickable(false);// 按钮不可点击（or radioButton.setEnabled(false);）
+                if (questionItem.getSelected_Index() == i){// 若之前选中的是该按钮
+                    radioButton.setChecked(true);// 默认选中
+                    radioButton.setTextColor(Color.rgb(255,0,0));// 假设选择为错误
+                }
+            }
             optionsRadioGroup.addView(radioButton);
         }
+        if (questionItem.isAnswered()) {// 若已经答过该题,设置正确选项的样式
+            RadioButton correctRadioButton = requireView().findViewById(questions.get(currentQuestionIndex).getRight() - 1);
+            correctRadioButton.setTextColor(Color.rgb(0, 255, 0));
+        }
+    }
+
+    public void displayQuestion(int cIndex,QuestionItem qItem){
+        currentQuestionIndex = cIndex;
+        questionItem=qItem;
+        displayQuestion();
     }
 
     private void checkAnswer() {
-        int selectedRadioButtonId = optionsRadioGroup.getCheckedRadioButtonId();
-
-        if (selectedRadioButtonId == -1) {
-            // 没有选中答案
-            Toast.makeText(requireContext(), "请选择一个答案", Toast.LENGTH_SHORT).show();
-        } else {
-            // RadioButton selectedRadioButton = requireView().findViewById(selectedRadioButtonId);
-            // String selectedAnswer = selectedRadioButton.getText().toString();
-            // System.out.println(selectedAnswer);
-            if (selectedRadioButtonId == questions.get(currentQuestionIndex).getRight() - 1) {
-                Toast.makeText(requireContext(), "回答正确！", Toast.LENGTH_SHORT).show();
-                listener.doquestion(currentQuestionIndex,true);
+        if (questionItem.isAnswered()){//若已提交过该题
+            Toast.makeText(requireContext(), "本题已经提交过啦！", Toast.LENGTH_SHORT).show();
+        }else{//若没提交过该题
+            int selectedRadioButtonId = optionsRadioGroup.getCheckedRadioButtonId();
+            if (selectedRadioButtonId == -1) {
+                // 没有选中答案
+                Toast.makeText(requireContext(), "请选择一个答案", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(requireContext(), "回答错误！", Toast.LENGTH_SHORT).show();
-                listener.doquestion(currentQuestionIndex,false);
+                // RadioButton selectedRadioButton = requireView().findViewById(selectedRadioButtonId);
+                // String selectedAnswer = selectedRadioButton.getText().toString();
+                // System.out.println(selectedAnswer);
+                questionItem.setSelected_Index(selectedRadioButtonId);
+                questionItem.setAnswered(true);
+                if (selectedRadioButtonId == questions.get(currentQuestionIndex).getRight() - 1) {
+                    questionItem.setCorrect(true);
+                    Toast.makeText(requireContext(), "回答正确！", Toast.LENGTH_SHORT).show();
+                    listener.doquestion(questionItem);
+                } else {
+                    questionItem.setCorrect(false);
+                    Toast.makeText(requireContext(), "回答错误！", Toast.LENGTH_SHORT).show();
+                    listener.doquestion(questionItem);
+                }
             }
         }
-    }
 
-    public void updateQuestion(int cIndex){
-        currentQuestionIndex = cIndex;
-        displayQuestion();
     }
 
 }

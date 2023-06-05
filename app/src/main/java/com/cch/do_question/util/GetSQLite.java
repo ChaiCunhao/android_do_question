@@ -69,7 +69,7 @@ public class GetSQLite {
     public List<QuestionItem> setQuestionItemList() {
         List<QuestionItem> list2 = new ArrayList<>();
         for (int i = 0; i < question_contents.length; i++) {
-            QuestionItem questionItem=new QuestionItem(i+1,false,false);
+            QuestionItem questionItem=new QuestionItem(i+1,-1,false,false);
             list2.add(questionItem);
         }
         return list2;

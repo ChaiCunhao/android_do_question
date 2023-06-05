@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_quiz);
 
         // 初始化底部信息栏
@@ -60,6 +62,7 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
     public int getCurrentQuestionIndex(){
         return currentQuestionIndex;
     }
+    public QuestionItem getCurrentQuestionItem(){return questionItems.get(currentQuestionIndex);}
 
     private void updateInfoBar() {
         String info = String.format(Locale.getDefault(), "Correct: %d, Wrong: %d, Total: %d, CurrentID: %d",
@@ -78,7 +81,7 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         if (questionIndex >= 0 && questionIndex < questionItems.size()) {
             currentQuestionIndex = questionIndex;
             // 更新题目的显示等逻辑
-            quizFragment.updateQuestion(currentQuestionIndex);
+            quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));
             updateInfoBar();
         }
     }
@@ -90,19 +93,17 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
     }
 
     @Override
-    public void doquestion(int question_index, boolean isright) {//实现接口中更新答题情况的逻辑
-        questionItems.get(question_index).setAnswered(true);
-        questionItems.get(question_index).setCorrect(isright);
-        if (isright){
+    public void doquestion(QuestionItem questionItem) {//实现接口中更新答题情况的逻辑
+        questionItems.get(questionItem.getQuestionNumber()-1).setAnswered(true);
+        questionItems.get(questionItem.getQuestionNumber()-1).setCorrect(questionItem.isCorrect());
+        questionItems.get(questionItem.getQuestionNumber()-1).setSelected_Index(questionItem.getSelected_Index());
+        if (questionItem.isCorrect()){
             correctCount++;
+            if (currentQuestionIndex < questionItems.size()-1) {currentQuestionIndex++;}// 切换到下一题
         } else{
             wrongCount++;
         }
-        if (currentQuestionIndex < questionItems.size()-1) {
-            // 切换到下一题
-            currentQuestionIndex++;
-            quizFragment.updateQuestion(currentQuestionIndex);
-        }
+        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));
         updateInfoBar();
     }
 
