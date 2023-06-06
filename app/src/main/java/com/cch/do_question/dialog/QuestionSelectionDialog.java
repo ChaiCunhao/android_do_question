@@ -38,6 +38,27 @@ public class QuestionSelectionDialog extends DialogFragment {
         return fragment;
     }
 
+    public void updateItem(int new_cu_index){
+        //更新当前项的index
+        int old_cu_index=currentQuestionIndex;
+        currentQuestionIndex=new_cu_index;
+        //更新适配器，改变布局样式
+        if (questionAdapter != null){
+            questionAdapter.notifyItemChanged(old_cu_index);
+            questionAdapter.notifyItemChanged(new_cu_index);
+        }
+    }
+
+    public void updateItem(QuestionItem newItem){
+        //更新一项答题状态数据
+        int index=newItem.getQuestionNumber()-1;
+        questionItems.set(index,newItem);
+        //更新适配器，改变布局样式
+        if (questionAdapter != null){
+            questionAdapter.notifyItemChanged(index);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -57,6 +78,7 @@ public class QuestionSelectionDialog extends DialogFragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
 
+        //使用网格布局，每行6个
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 6);
         recyclerView.setLayoutManager(layoutManager);
 

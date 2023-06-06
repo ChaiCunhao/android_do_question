@@ -50,11 +50,16 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         quizFragment = new QuizFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, quizFragment).commit();
 
+        //创建题目选择面板
+        dialog = QuestionSelectionDialog.newInstance(questionItems, currentQuestionIndex);
+        dialog.setQuestionDialogListener(this);
+
         // 点击底部信息栏显示题目选择面板
         infoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showQuestionSelectionDialog();
+                //显示题目选择面板
+                dialog.show(getSupportFragmentManager(), "QuestionSelectionDialog");
             }
         });
 
@@ -71,19 +76,16 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         infoTextView.setText(info);
     }
 
-    private void showQuestionSelectionDialog() {
-        dialog = QuestionSelectionDialog.newInstance(questionItems, currentQuestionIndex);
-        dialog.setQuestionDialogListener(this);
-        dialog.show(getSupportFragmentManager(), "QuestionSelectionDialog");
-    }
-
     public void jumpToQuestion(int questionIndex) {
         // 实现接口中跳转到指定的题目的逻辑
         if (questionIndex >= 0 && questionIndex < questionItems.size()) {
             currentQuestionIndex = questionIndex;
             // 更新题目的显示等逻辑
             quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));
+            //更新底部信息栏
             updateInfoBar();
+            //更新选题面板当前项
+            dialog.updateItem(currentQuestionIndex);
         }
     }
 
@@ -97,6 +99,8 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
     public void doquestion(QuestionItem questionItem) {//实现接口中更新答题情况的逻辑
         //更新sqlite数据库
         getSQLite.updateQuestionItem(this,questionItem);
+        //更新选题面板该项数据
+        dialog.updateItem(questionItem);
         //更新内存数据
         questionItems.get(questionItem.getQuestionNumber()-1).setAnswered(true);
         questionItems.get(questionItem.getQuestionNumber()-1).setCorrect(questionItem.isCorrect());
@@ -107,8 +111,10 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         } else{
             wrongCount++;
         }
-        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
-        updateInfoBar();//更新信息栏
+        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//更新题目展示
+        updateInfoBar();//更新底部信息栏
+        dialog.updateItem(currentQuestionIndex);//更新选题面板当前项
+
     }
 
     @Override
@@ -116,6 +122,7 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         if (currentQuestionIndex > 0) {currentQuestionIndex--;}// 切换到上一题
         quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
         updateInfoBar();//更新信息栏
+        dialog.updateItem(currentQuestionIndex);//更新选题面板当前项
     }
 
     @Override
@@ -123,6 +130,7 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         if (currentQuestionIndex < questionItems.size()-1) {currentQuestionIndex++;}// 切换到下一题
         quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
         updateInfoBar();//更新信息栏
+        dialog.updateItem(currentQuestionIndex);//更新选题面板当前项
     }
 
 }
