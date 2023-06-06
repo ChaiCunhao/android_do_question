@@ -20,8 +20,9 @@ import android.content.Context;
 // QuizActivity 实现QuestionDialogListener接口，并在实现方法中实现关闭对话框的逻辑
 public class QuizActivity extends AppCompatActivity implements QuestionSelectionDialog.QuestionDialogListener, QuizFragment.DoQuestionListener {
     private TextView infoTextView;
+    GetSQLite getSQLite;
     private List<QuestionItem> questionItems;
-    private int currentQuestionIndex;
+    private int currentQuestionIndex = 0;
     QuizFragment quizFragment;
     QuestionSelectionDialog dialog;
     private int correctCount;
@@ -37,8 +38,8 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         // 初始化底部信息栏
         infoTextView = findViewById(R.id.infoTextView);
 
-        GetSQLite getSQLite = new GetSQLite();
-        questionItems=getSQLite.setQuestionItemList();
+        getSQLite = new GetSQLite(this);
+        questionItems=getSQLite.getQuestionItems(this);
         correctCount=0;
         wrongCount=0;
         totalQuestions=questionItems.size();
@@ -94,6 +95,9 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
 
     @Override
     public void doquestion(QuestionItem questionItem) {//实现接口中更新答题情况的逻辑
+        //更新sqlite数据库
+        getSQLite.updateQuestionItem(this,questionItem);
+        //更新内存数据
         questionItems.get(questionItem.getQuestionNumber()-1).setAnswered(true);
         questionItems.get(questionItem.getQuestionNumber()-1).setCorrect(questionItem.isCorrect());
         questionItems.get(questionItem.getQuestionNumber()-1).setSelected_Index(questionItem.getSelected_Index());
@@ -103,8 +107,22 @@ public class QuizActivity extends AppCompatActivity implements QuestionSelection
         } else{
             wrongCount++;
         }
-        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));
-        updateInfoBar();
+        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
+        updateInfoBar();//更新信息栏
+    }
+
+    @Override
+    public void pre_question(){//实现接口中切换上一题的逻辑
+        if (currentQuestionIndex > 0) {currentQuestionIndex--;}// 切换到上一题
+        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
+        updateInfoBar();//更新信息栏
+    }
+
+    @Override
+    public void next_question(){//实现接口中切换下一题的逻辑
+        if (currentQuestionIndex < questionItems.size()-1) {currentQuestionIndex++;}// 切换到下一题
+        quizFragment.displayQuestion(currentQuestionIndex,questionItems.get(currentQuestionIndex));//题目展示
+        updateInfoBar();//更新信息栏
     }
 
 }

@@ -2,4 +2,10 @@
     <string name="app_name">do_question</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="before_title">全题库练习</string>
+    <string name="start_question">继续刷题</string>
+    <string name="reset_question">重新刷题</string>
+    <string name="submit">提交</string>
+    <string name="pre">上一题</string>
+    <string name="next">下一题</string>
 </resources>

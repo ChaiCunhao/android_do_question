@@ -34,6 +34,8 @@ public class QuizFragment extends Fragment {
     private TextView questionTextView;
     private RadioGroup optionsRadioGroup;
     private Button submitButton;
+    private Button preButton;
+    private Button nextButton;
 
     private int currentQuestionIndex = 0;//当前题目下标
     private int correctAnswers = 0;//正确回答数目
@@ -43,6 +45,8 @@ public class QuizFragment extends Fragment {
     //创建一个接口
     public interface DoQuestionListener{
         void doquestion(QuestionItem questionItem);
+        void pre_question();
+        void next_question();
     }
 
     public QuizFragment() {
@@ -69,8 +73,10 @@ public class QuizFragment extends Fragment {
         questionTextView = view.findViewById(R.id.questionTextView);
         optionsRadioGroup = view.findViewById(R.id.optionsRadioGroup);
         submitButton = view.findViewById(R.id.submitButton);
+        preButton = view.findViewById(R.id.prebutton);
+        nextButton = view.findViewById(R.id.nextbutton);
 
-        GetSQLite getSQLite = new GetSQLite();
+        GetSQLite getSQLite = new GetSQLite(getActivity());
         questions= getSQLite.setQuestionList();
 
         displayQuestion();
@@ -79,6 +85,19 @@ public class QuizFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 checkAnswer();
+            }
+        });
+        preButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.pre_question();
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.next_question();
             }
         });
 
@@ -100,15 +119,15 @@ public class QuizFragment extends Fragment {
                 radioButton.setClickable(false);// 按钮不可点击（or radioButton.setEnabled(false);）
                 if (questionItem.getSelected_Index() == i){// 若之前选中的是该按钮
                     radioButton.setChecked(true);// 默认选中
-                    radioButton.setTextColor(Color.rgb(255,0,0));// 假设选择为错误
+                    radioButton.setTextColor(Color.rgb(255,0,0));// 假设选择为错误，置红
+                }
+                if (questions.get(currentQuestionIndex).getRight()-1 == i){
+                    radioButton.setTextColor(Color.rgb(0, 255, 0));//正确选项置绿
                 }
             }
             optionsRadioGroup.addView(radioButton);
         }
-        if (questionItem.isAnswered()) {// 若已经答过该题,设置正确选项的样式
-            RadioButton correctRadioButton = requireView().findViewById(questions.get(currentQuestionIndex).getRight() - 1);
-            correctRadioButton.setTextColor(Color.rgb(0, 255, 0));
-        }
+
     }
 
     public void displayQuestion(int cIndex,QuestionItem qItem){
