@@ -10,9 +10,22 @@
     tools:context=".fragment.QuizFragment">
 
     <TextView
+        android:id="@+id/questionType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="type" />
+
+    <TextView
         android:id="@+id/questionTextView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="question" />
+
+    <ImageView
+        android:id="@+id/questionImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="fitCenter" />
 
     <RadioGroup
         android:id="@+id/optionsRadioGroup"
@@ -36,4 +49,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/next" />
+
+    <TextView
+        android:id="@+id/bestAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="bestanswer" />
 </LinearLayout>
