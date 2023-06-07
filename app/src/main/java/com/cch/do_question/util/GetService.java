@@ -23,7 +23,6 @@ public class GetService {
             result = response.returnContent().asString();
             //解决返回数据中文乱码
             new_result = new String(result.getBytes("ISO-8859-1"), "utf-8");
-//            System.out.println(new_result);
         } catch (IOException e) {
             e.printStackTrace();
         }

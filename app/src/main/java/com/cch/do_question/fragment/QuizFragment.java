@@ -2,6 +2,7 @@ package com.cch.do_question.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cch.do_question.BeforeQuestion;
 import com.cch.do_question.QuizActivity;
 import com.cch.do_question.R;
 import com.cch.do_question.bean.Question;
@@ -35,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class QuizFragment extends Fragment {
 
@@ -96,12 +99,21 @@ public class QuizFragment extends Fragment {
 
         getQuestion();//请求当前题目数据
 
+        QuizFragment that = this;
         mHandler=new Handler(new Handler.Callback() {//接收消息，做出处理
             @Override
             public boolean handleMessage(@NonNull Message msg) {
                 if (msg.what == 123) {
-                    //接收到json字符串,转化为question对象
+                    //接收到json字符串
                     String json=(String) msg.obj;
+                    //判断是否为null(代表未请求到数据)
+                    if(json == null){
+                        Toast.makeText(requireContext(), "网络异常！", Toast.LENGTH_SHORT).show();
+                        //关闭答题界面
+                        that.requireActivity().finish();
+                        return false;
+                    }
+                    //转化为question对象
                     GetService getService = new GetService();
                     question = getService.getQuestionFromJson(json);
                     displayQuestion();
